@@ -29,9 +29,9 @@ type Hasher interface {
 }
 
 type FNV1a struct {
-	offset []byte
-	prime  []byte
-	length int
+	offset *big.Int
+	prime  *big.Int
+	mod    *big.Int
 }
 
 func NewFNV1a32() Hasher {
@@ -105,38 +105,26 @@ func NewFNV1a1024() Hasher {
 }
 
 func newFNV1a(offset []byte, prime []byte, length int) Hasher {
+	modulus := new(big.Int).Lsh(big.NewInt(1), uint(length)) // 2^length
+	offsetInt := new(big.Int).SetBytes(offset)
+	primeInt := new(big.Int).SetBytes(prime)
+
 	return &FNV1a{
-		offset: offset,
-		prime:  prime,
-		length: length,
+		offset: offsetInt,
+		prime:  primeInt,
+		mod:    modulus,
 	}
 }
 
 func (h *FNV1a) Hash(data []byte) []byte {
 	hash := h.offset
+	cont := new(big.Int)
+
 	for _, b := range data {
-		hash = xor(hash, b)
-		hash = BigIntMul(hash, h.prime, h.length)
+		c := cont.SetBytes([]byte{b})
+		hash.Xor(hash, c)
+		hash.Mul(hash, h.prime)
+		hash.Mod(hash, h.mod)
 	}
-	return hash
-}
-func xor(a []byte, b byte) []byte {
-	result := make([]byte, len(a))
-	copy(result, a)
-
-	// XOR only the least significant byte with b
-	if len(result) > 0 {
-		result[len(result)-1] ^= b
-	}
-
-	return result
-}
-
-func BigIntMul(a []byte, b []byte, mod int) []byte {
-	modulus := new(big.Int).Lsh(big.NewInt(1), uint(mod)) // 2^length
-	A := new(big.Int).SetBytes(a)
-	B := new(big.Int).SetBytes(b)
-	product := new(big.Int).Mul(A, B)
-	product = product.Mod(product, modulus)
-	return product.Bytes()
+	return hash.Bytes()
 }

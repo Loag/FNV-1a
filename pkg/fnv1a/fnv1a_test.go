@@ -29,8 +29,8 @@ func TestHash32(t *testing.T) {
 
 func BenchmarkHash64(b *testing.B) {
 	data := []byte("Hello")
-
 	hasher := NewFNV1a64()
+
 	for b.Loop() {
 		hasher.Hash(data)
 	}
