@@ -1,0 +1,28 @@
+{
+  "name": "FNV-1a-dev",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+  "features": {
+    "ghcr.io/devcontainers/features/go": {}
+  },
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "go.lintFlags": [
+            "--enable-all",
+            "--new"
+          ],
+          "go.useLanguageServer": true
+      },
+      "extensions": [
+        "golang.go",
+        "enkia.tokyo-night",
+        "PKief.material-icon-theme"
+      ]
+    }
+  },
+  "remoteUser": "root",
+  "runArgs": [
+    "--network", "host"
+  ]
+  
+}
