@@ -20,10 +20,6 @@ var (
 	prime1024  = "000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000018d"
 )
 
-func hexToBytes(hexStr string) ([]byte, error) {
-	return hex.DecodeString(hexStr)
-}
-
 type Hasher interface {
 	Hash(data []byte) []byte
 }
@@ -35,11 +31,11 @@ type FNV1a struct {
 }
 
 func NewFNV1a32() Hasher {
-	offset, err := hexToBytes(offset32)
+	offset, err := hex.DecodeString(offset32)
 	if err != nil {
 		panic(err)
 	}
-	prime, err := hexToBytes(prime32)
+	prime, err := hex.DecodeString(prime32)
 	if err != nil {
 		panic(err)
 	}
@@ -47,11 +43,11 @@ func NewFNV1a32() Hasher {
 }
 
 func NewFNV1a64() Hasher {
-	offset, err := hexToBytes(offset64)
+	offset, err := hex.DecodeString(offset64)
 	if err != nil {
 		panic(err)
 	}
-	prime, err := hexToBytes(prime64)
+	prime, err := hex.DecodeString(prime64)
 	if err != nil {
 		panic(err)
 	}
@@ -59,11 +55,11 @@ func NewFNV1a64() Hasher {
 }
 
 func NewFNV1a128() Hasher {
-	offset, err := hexToBytes(offset128)
+	offset, err := hex.DecodeString(offset128)
 	if err != nil {
 		panic(err)
 	}
-	prime, err := hexToBytes(prime128)
+	prime, err := hex.DecodeString(prime128)
 	if err != nil {
 		panic(err)
 	}
@@ -71,33 +67,33 @@ func NewFNV1a128() Hasher {
 }
 
 func NewFNV1a256() Hasher {
-	offset, err := hexToBytes(offset256)
+	offset, err := hex.DecodeString(offset256)
 	if err != nil {
 		panic(err)
 	}
-	prime, err := hexToBytes(prime256)
+	prime, err := hex.DecodeString(prime256)
 	if err != nil {
 		panic(err)
 	}
 	return newFNV1a(offset, prime, 256)
 }
 func NewFNV1a512() Hasher {
-	offset, err := hexToBytes(offset512)
+	offset, err := hex.DecodeString(offset512)
 	if err != nil {
 		panic(err)
 	}
-	prime, err := hexToBytes(prime512)
+	prime, err := hex.DecodeString(prime512)
 	if err != nil {
 		panic(err)
 	}
 	return newFNV1a(offset, prime, 512)
 }
 func NewFNV1a1024() Hasher {
-	offset, err := hexToBytes(offset1024)
+	offset, err := hex.DecodeString(offset1024)
 	if err != nil {
 		panic(err)
 	}
-	prime, err := hexToBytes(prime1024)
+	prime, err := hex.DecodeString(prime1024)
 	if err != nil {
 		panic(err)
 	}
@@ -105,7 +101,7 @@ func NewFNV1a1024() Hasher {
 }
 
 func newFNV1a(offset []byte, prime []byte, length int) Hasher {
-	modulus := new(big.Int).Lsh(big.NewInt(1), uint(length)) // 2^length
+	modulus := new(big.Int).Lsh(big.NewInt(1), uint(length))
 	offsetInt := new(big.Int).SetBytes(offset)
 	primeInt := new(big.Int).SetBytes(prime)
 
@@ -121,8 +117,8 @@ func (h *FNV1a) Hash(data []byte) []byte {
 	cont := new(big.Int)
 
 	for _, b := range data {
-		c := cont.SetBytes([]byte{b})
-		hash.Xor(hash, c)
+		cont.SetBytes([]byte{b})
+		hash.Xor(hash, cont)
 		hash.Mul(hash, h.prime)
 		hash.Mod(hash, h.mod)
 	}
